@@ -1,0 +1,82 @@
+Sub testing()
+
+For Each ws In Worksheets
+
+     lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+     Dim rowcount As Integer
+     rowcount = 2
+     Dim totalvolume As Double
+     Dim ychange As Double
+     Dim openv As Double
+     Dim closev As Double
+     ws.Columns("j").NumberFormat = "0.00"
+     ws.Columns("k").NumberFormat = "0.00%"
+     ws.Cells(1, 9).Value = "Ticker"
+     ws.Cells(1, 10).Value = "Yearly Change"
+     ws.Cells(1, 11).Value = "Percent Change"
+     ws.Cells(1, 12).Value = "Total Stock Volume"
+     openv = ws.Cells(2, 3).Value
+          
+        For i = 2 To lastrow
+                                 
+             If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                ws.Cells(rowcount, 9).Value = ws.Cells(i, 1).Value
+            'total volume
+                totalvolume = totalvolume + ws.Cells(i, 7).Value
+                ws.Cells(rowcount, 12).Value = totalvolume
+                totalvolume = 0
+            'yearly change
+                
+                closev = ws.Cells(i, 6).Value
+                ws.Cells(rowcount, 10).Value = closev - openv
+                    If ws.Cells(rowcount, 10).Value > 0 Then
+                        ws.Cells(rowcount, 10).Interior.ColorIndex = 4
+                    ElseIf ws.Cells(rowcount, 10).Value < 0 Then
+                        ws.Cells(rowcount, 10).Interior.ColorIndex = 3
+                    Else
+                        ws.Cells(rowcount, 10).Interior.ColorIndex = 0
+                    End If
+            'percent change
+                ws.Cells(rowcount, 11).Value = ((closev - openv) / openv)
+                openv = ws.Cells(i + 1, 3).Value
+                rowcount = rowcount + 1
+             Else
+                totalvolume = totalvolume + ws.Cells(i, 7).Value
+                
+             End If
+             
+        Next i
+                ws.Cells(1, 16).Value = "Ticker"
+                ws.Cells(1, 17).Value = "Value"
+                ws.Cells(2, 15).Value = "Greatest % Increase"
+                ws.Cells(3, 15).Value = "Greatest % Decrease"
+                ws.Cells(4, 15).Value = "Greatest Total Volume"
+                ws.Range("q2:q3").NumberFormat = "0.00%"
+                Dim gpi As Double
+                gpi = WorksheetFunction.Max(ws.Range("k:k"))
+                ws.Cells(2, 17).Value = gpi
+                Dim gpd As Double
+                gpd = WorksheetFunction.Min(ws.Range("k:k"))
+                ws.Cells(3, 17).Value = gpd
+                Dim gtv As Double
+                gtv = WorksheetFunction.Max(ws.Range("l:l"))
+                ws.Cells(4, 17).Value = gtv
+                ws.Cells(4, 17).NumberFormat = "0"
+                
+         For i = 2 To lastrow
+                If ws.Cells(i, 11) = gpi Then
+                ws.Cells(2, 16).Value = ws.Cells(i, 9).Value
+                ElseIf ws.Cells(i, 11) = gpd Then
+                ws.Cells(3, 16).Value = ws.Cells(i, 9).Value
+                ElseIf ws.Cells(i, 12) = gtv Then
+                ws.Cells(4, 16).Value = ws.Cells(i, 9).Value
+                
+                End If
+         Next i
+                
+                ws.Columns("i:q").AutoFit
+                                
+Next ws
+        
+End Sub
+
